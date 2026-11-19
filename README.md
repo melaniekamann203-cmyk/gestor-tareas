@@ -64,6 +64,31 @@ El `.env` está en el `.gitignore` y nunca se sube al repo. En producción, las 
 
 ## Email con el resumen
 
+El botón **"Enviar resumen por email"** manda al usuario un resumen del estado de sus tareas (total, pendientes y completadas).
+
+**Flujo:**
+
+1. `SummaryButton` llama al service `sendSummaryEmail` (`src/services/summary.ts`). El frontend **nunca** habla con AWS directamente.
+2. El service arma el resumen con `buildSummary` y hace un `POST` a `/api/send-summary`.
+3. La Vercel Function (`api/send-summary.ts`) **valida el payload** (`to`, `subject`, `text`) y responde `400` si falta algo o es inválido.
+4. La función envía el email con **AWS SES** (SDK v3, `@aws-sdk/client-ses`) y responde `200`. Si SES falla, responde `502`.
+5. El botón muestra el estado: **enviando** (deshabilitado), **éxito** o **error**.
+
+**Variables de entorno (solo en el servidor, configuradas en Vercel):**
+
+| Variable | Descripción |
+|---|---|
+| `SES_REGION` | Región de SES, por ejemplo `us-east-1` |
+| `SES_ACCESS_KEY_ID` | Access key de un usuario IAM con permiso solo para enviar emails |
+| `SES_SECRET_ACCESS_KEY` | Secret key de ese usuario |
+| `SES_FROM_EMAIL` | Email verificado en SES que envía el resumen |
+
+Estas variables **no llevan el prefijo `VITE_`**, así nunca llegan al navegador. Se usa el prefijo `SES_` porque Vercel reserva los nombres `AWS_*`.
+
+**SES en sandbox:** la cuenta de SES funciona en modo sandbox, así que solo puede enviar emails a direcciones verificadas en SES. Para este proyecto alcanza con verificar el propio email del usuario.
+
+**Estado actual:** el código del envío está completo (botón, service, Vercel Function y validación). La activación de la cuenta de AWS quedó pendiente por un problema con la verificación telefónica del registro. Una vez activada, solo resta verificar el email en SES, crear el usuario IAM y cargar las 4 variables en Vercel. No hace falta cambiar código.
+
 *(En desarrollo: se documenta acá el flujo con Vercel Functions + AWS SES.)*
 
 ## Cómo usé la IA
