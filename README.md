@@ -68,4 +68,16 @@ El `.env` está en el `.gitignore` y nunca se sube al repo. En producción, las 
 
 ## Cómo usé la IA
 
-*(Completar con mi reflexión.)*
+Usé la IA (Claude) como **tutor personal**: una guía para no equivocarme y, sobre todo, para ir aprendiendo mientras construía el proyecto. Le pedía avanzar **paso a paso, de a un archivo**, y que me explicara qué hacía cada parte antes de seguir. Así entendía el código en vez de solo copiarlo.
+
+**Errores que encontré y resolví:**
+- Un archivo mal nombrado (`TasksPge.tsx` en lugar de `TasksPage.tsx`), que rompía las rutas. Lo renombré.
+- Una llave `}` que faltaba al final de un componente. La detecté por el error del editor y la agregué.
+- El nombre del archivo de configuración de los tests no coincidía con el de `vite.config.ts`. Los igualé.
+- El traductor de Chrome alteraba los textos de la app en producción. Lo resolví declarando el idioma en `index.html` (`lang="es"`).
+
+**Cómo validé lo que generaba la IA:** corriendo la app en local, ejecutando `npm test` (los tests tienen que pasar en verde) y `npm run build` antes de cada deploy. También probé la versión publicada en Vercel.
+
+**Qué aprendí:** aprendí todo lo que vi en este módulo y, lo más importante, pude **aplicarlo en la práctica**. Sé que me falta practicar mucho, porque es mucho contenido, pero ahora entiendo cómo se conectan las piezas de una app real.
+
+**Por qué este método me sirve:** las clases en vivo son grabadas y muchas veces mis compañeros están en otro punto del proceso, así que prefiero no interrumpir con mis dudas. Henry me da las herramientas fundamentales y resume en meses una carrera que llevaría un año o más. La IA complementa eso como un tutor con la paciencia para explicarme cada paso a mi ritmo.
