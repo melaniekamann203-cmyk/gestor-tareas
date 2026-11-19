@@ -1,75 +1,71 @@
-# React + TypeScript + Vite
+# Gestor de Tareas · PI M4 Henry
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SPA para que los empleados de un cliente de MateCode gestionen sus tareas desde cualquier dispositivo. Cada usuario se registra, inicia sesión y administra **solo sus propias tareas**, que se guardan en la nube y se actualizan en tiempo real.
 
-Currently, two official plugins are available:
+🔗 **Producción:** https://gestor-tareas-liart-mu.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Funcionalidades
 
-## React Compiler
+- Registro y login con email y contraseña, y login con Google.
+- Rutas privadas: sin sesión no se puede entrar a `/tasks`.
+- Sesión persistente: al recargar, seguís adentro.
+- CRUD de tareas: crear (título y descripción), listar, editar, eliminar y marcar como completada.
+- Sincronización en tiempo real con `onSnapshot`, sin recargar la página.
+- Errores de autenticación traducidos al español.
+- Diseño responsive, mobile first.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+- **Frontend:** React + TypeScript, Vite, React Router.
+- **Backend as a Service:** Firebase Authentication y Cloud Firestore.
+- **Deploy:** Vercel.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Arquitectura
 
 ```
-
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+src/
+├── components/   # UI reutilizable: Layout, TodoForm, TodoList, PrivateRoute
+├── pages/        # Pantallas: LoginPage, TasksPage
+├── services/     # Única capa que habla con Firebase: firebase, auth, tasks
+├── hooks/        # Conectan los services con React: useAuth, useTasks
+└── types/        # Tipos compartidos: Task, TaskFormValues
+api/              # Funciones serverless de Vercel
 ```
+
+**Decisiones principales:**
+
+- **Separación por capas.** Los componentes no llaman a Firebase directamente: usan hooks, y los hooks usan services. Así la UI queda separada de la lógica y es más fácil de testear.
+- **Tiempo real con `onSnapshot`.** `useTasks` se suscribe a una query de Firestore filtrada por `userId` (patrón Observer). Cada alta, edición o baja actualiza la lista automáticamente. La suscripción se cancela cuando el componente se desmonta.
+- **Un solo formulario para crear y editar.** `TodoForm` se reutiliza en los dos casos.
+- **Seguridad en el servidor.** Además del filtro en el frontend, las reglas de Firestore (`firestore.rules`) solo permiten leer, editar o borrar una tarea a su dueño. Firestore está en modo producción, no en modo prueba.
+
+## Instalación
+
+```bash
+git clone https://github.com/melaniekamann203-cmyk/gestor-tareas.git
+cd gestor-tareas
+npm install
+cp .env.example .env   # y completar con los datos de tu proyecto de Firebase
+npm run dev
+```
+
+## Variables de entorno
+
+| Variable | Descripción |
+|---|---|
+| `VITE_FIREBASE_API_KEY` | API key de la app web de Firebase |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Dominio de autenticación |
+| `VITE_FIREBASE_PROJECT_ID` | ID del proyecto |
+| `VITE_FIREBASE_STORAGE_BUCKET` | Bucket de Storage |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Sender ID |
+| `VITE_FIREBASE_APP_ID` | ID de la app |
+
+El `.env` está en el `.gitignore` y nunca se sube al repo. En producción, las variables están configuradas en Vercel. El dominio de Vercel está autorizado en Firebase Authentication.
+
+## Email con el resumen
+
+*(En desarrollo: se documenta acá el flujo con Vercel Functions + AWS SES.)*
+
+## Cómo usé la IA
+
+*(Completar con mi reflexión.)*
