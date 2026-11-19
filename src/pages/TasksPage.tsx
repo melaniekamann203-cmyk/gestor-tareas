@@ -3,6 +3,7 @@ import { useTasks } from "../hooks/useTasks";
 import { Layout } from "../components/Layout";
 import { TodoForm } from "../components/TodoForm";
 import { TodoList } from "../components/TodoList";
+import { SummaryButton } from "../components/SummaryButton";
 import { createTask, deleteTask, updateTask } from "../services/tasks";
 import type { Task, TaskFormValues } from "../types/task";
 
@@ -37,6 +38,7 @@ export function TasksPage() {
       <p className="summary">
         {pending} pendientes de {tasks.length}
       </p>
+      {user.email && <SummaryButton email={user.email} tasks={tasks} />}
       {loading && <p className="status">Cargando tareas...</p>}
       {error && <p className="error">{error}</p>}
       {!loading && !error && (
